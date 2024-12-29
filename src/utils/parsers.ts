@@ -51,22 +51,23 @@ export function parseTimeviewJson(jsonString: string): TimeEntry[] {
     // Map for deduplication, key is date + title combination
     const uniqueEvents = new Map<string, TimeEntry>();
     
-    data.forEach((item: any) => {
+    data.forEach((item: Record<string, unknown>) => {
       try {
-        const title = item.title || item.name || item.summary || '';
-        const note = item.note || item.notes || item.description || item.desc || '';
-        const category = item.category || item.type || '';
-        const tags = Array.isArray(item.tags) ? item.tags : 
-          (typeof item.tags === 'string' ? item.tags.split(',').map(t => t.trim()) : []);
+        const title = (item.title as string) || (item.name as string) || (item.summary as string) || '';
+        const note = (item.note as string) || (item.notes as string) || (item.description as string) || (item.desc as string) || '';
+        const category = (item.category as string) || (item.type as string) || '';
+        const tags = Array.isArray(item.tags) ? item.tags as string[] : 
+          (typeof item.tags === 'string' ? (item.tags as string).split(',').map(t => t.trim()) : []);
 
         // Process date
         let date: Date | null = null;
-        const dateStr = item.date || item.startDate || item.start_date;
+        const rawDateValue = item.date || item.startDate || item.start_date;
+        const dateStr = typeof rawDateValue === 'string' ? rawDateValue : '';
         
         // Try parsing MM/DD/YY format
         const mmddyyMatch = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2})/);
         if (mmddyyMatch) {
-          const [_, month, day, year] = mmddyyMatch;
+          const [, month, day, year] = mmddyyMatch;
           date = new Date(2000 + parseInt(year), parseInt(month) - 1, parseInt(day));
         }
         
@@ -85,7 +86,8 @@ export function parseTimeviewJson(jsonString: string): TimeEntry[] {
         if (item.duration) {
           duration = parseFloat(item.duration.toString());
         } else if (item.endDate) {
-          const endDate = new Date(item.endDate);
+          const endDateStr = typeof item.endDate === 'string' ? item.endDate : '';
+          const endDate = new Date(endDateStr);
           if (!isNaN(endDate.getTime())) {
             duration = Math.max((endDate.getTime() - date.getTime()) / (1000 * 60 * 60), 1);
           }
@@ -160,7 +162,7 @@ export function parseTimeviewCsv(csvString: string): TimeEntry[] {
         // Try MM/DD/YY format first
         const mmddyyMatch = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2})/);
         if (mmddyyMatch) {
-          const [_, month, day, year] = mmddyyMatch;
+          const [, month, day, year] = mmddyyMatch;
           date = new Date(2000 + parseInt(year), parseInt(month) - 1, parseInt(day));
         }
         

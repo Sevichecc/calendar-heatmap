@@ -25,9 +25,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetBrainsMono.variable}`}>
-      <head>
-        <link rel="stylesheet" href="/heat.js/heat.js.min.css" />
-      </head>
       <body className={inter.className}>
         <Script src="/heat.js/heat.min.js" strategy="beforeInteractive" />
         {children}

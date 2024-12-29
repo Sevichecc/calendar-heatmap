@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from 'react';
 import type { PublicApi} from 'jheat.js/src/ts/api';
-import type { BindingOptions, BindingOptionsCurrentView } from 'jheat.js/src/ts/type';
+import type { BindingOptions } from 'jheat.js/src/ts/type';
 import '@/styles/heat-override.css';
 
 declare global {
@@ -13,14 +13,13 @@ declare global {
 interface HeatmapCalendarProps {
   data: Date[];
   year: number;
-  theme?: string;
   colorRanges: Array<{
     minimum: number;
     cssClassName: string;
   }>;
 }
 
-export function HeatmapCalendar({ data, year, theme = 'light/orange', colorRanges }: HeatmapCalendarProps) {
+export function HeatmapCalendar({ data, year, colorRanges }: HeatmapCalendarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const elementId = 'heat-map';
 
@@ -32,6 +31,7 @@ export function HeatmapCalendar({ data, year, theme = 'light/orange', colorRange
     
     if (!isInitialized) {
       window.$heat.render(containerRef.current, {
+        _currentView: "map",
         year: year,
         views: {
           map: {
@@ -57,7 +57,7 @@ export function HeatmapCalendar({ data, year, theme = 'light/orange', colorRange
           delay: 500,
           dayText: "{d}{o} {mmmm} {yyyy}"
         }
-      } as BindingOptions);
+      } as unknown as BindingOptions);
       containerRef.current.setAttribute('data-initialized', 'true');
     }
 

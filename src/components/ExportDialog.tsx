@@ -147,61 +147,61 @@ export function ExportDialog({ elementId, year }: ExportDialogProps) {
     }
   };
 
-  // 生成预览
-  const generatePreview = () => {
-    const element = document.getElementById(elementId);
-    if (!element || !previewRef.current) return;
-
-    previewRef.current.innerHTML = '';
-    
-    // 创建预览容器
-    const previewContainer = document.createElement("div");
-    previewContainer.style.padding = "2rem";
-    previewContainer.style.backgroundColor = "white";
-    previewContainer.style.width = "100%";
-    previewContainer.style.height = "100%";
-    
-    // 添加标题
-    const titleElement = document.createElement("div");
-    titleElement.style.marginBottom = "1.5rem";
-    titleElement.style.fontSize = "1.25rem";
-    titleElement.style.fontWeight = "600";
-    titleElement.style.fontFamily = "var(--font-mono)";
-    titleElement.style.color = "#1a1a1a";
-    titleElement.textContent = title;
-    previewContainer.appendChild(titleElement);
-
-    // 添加用户ID（如果有）
-    if (userId) {
-      const userIdElement = document.createElement("div");
-      userIdElement.style.marginBottom = "1rem";
-      userIdElement.style.fontSize = "0.875rem";
-      userIdElement.style.color = "#666";
-      userIdElement.style.fontFamily = "var(--font-mono)";
-      userIdElement.textContent = `@${userId}`;
-      previewContainer.appendChild(userIdElement);
-    }
-
-    // 添加热图容器
-    const heatmapContainer = document.createElement("div");
-    const width = SIZES[size].width;
-    if (width !== null) {
-      const scale = Math.min(1, previewRef.current.offsetWidth / element.offsetWidth * 0.8);
-      heatmapContainer.style.transform = `scale(${scale})`;
-      heatmapContainer.style.transformOrigin = 'top left';
-    }
-    
-    const heatmapClone = element.cloneNode(true) as HTMLElement;
-    heatmapContainer.appendChild(heatmapClone);
-    previewContainer.appendChild(heatmapContainer);
-    previewRef.current.appendChild(previewContainer);
-  };
-
   useEffect(() => {
     if (isOpen) {
+      // Generate preview
+      const generatePreview = () => {
+        const element = document.getElementById(elementId);
+        if (!element || !previewRef.current) return;
+    
+        previewRef.current.innerHTML = '';
+        
+        // 创建预览容器
+        const previewContainer = document.createElement("div");
+        previewContainer.style.padding = "2rem";
+        previewContainer.style.backgroundColor = "white";
+        previewContainer.style.width = "100%";
+        previewContainer.style.height = "100%";
+        
+        // 添加标题
+        const titleElement = document.createElement("div");
+        titleElement.style.marginBottom = "1.5rem";
+        titleElement.style.fontSize = "1.25rem";
+        titleElement.style.fontWeight = "600";
+        titleElement.style.fontFamily = "var(--font-mono)";
+        titleElement.style.color = "#1a1a1a";
+        titleElement.textContent = title;
+        previewContainer.appendChild(titleElement);
+    
+        // 添加用户ID（如果有）
+        if (userId) {
+          const userIdElement = document.createElement("div");
+          userIdElement.style.marginBottom = "1rem";
+          userIdElement.style.fontSize = "0.875rem";
+          userIdElement.style.color = "#666";
+          userIdElement.style.fontFamily = "var(--font-mono)";
+          userIdElement.textContent = `@${userId}`;
+          previewContainer.appendChild(userIdElement);
+        }
+    
+        // 添加热图容器
+        const heatmapContainer = document.createElement("div");
+        const width = SIZES[size].width;
+        if (width !== null) {
+          const scale = Math.min(1, previewRef.current.offsetWidth / element.offsetWidth * 0.8);
+          heatmapContainer.style.transform = `scale(${scale})`;
+          heatmapContainer.style.transformOrigin = 'top left';
+        }
+        
+        const heatmapClone = element.cloneNode(true) as HTMLElement;
+        heatmapContainer.appendChild(heatmapClone);
+        previewContainer.appendChild(heatmapContainer);
+        previewRef.current.appendChild(previewContainer);
+      };
+
       generatePreview();
     }
-  }, [isOpen, title, userId, size]);
+  }, [isOpen, title, userId, size, elementId]);
 
   return (
     <>

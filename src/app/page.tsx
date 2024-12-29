@@ -46,12 +46,6 @@ export default function Home() {
       }, []);
   }, [rawData, keyword, durationRange]);
 
-  // Generate year options (last 3 years)
-  const years = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    return [currentYear, currentYear - 1, currentYear - 2];
-  }, []);
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -125,7 +119,6 @@ export default function Home() {
           <HeatmapCalendar 
             data={filteredData} 
             year={selectedYear} 
-            theme={theme}
             colorRanges={colorRanges}
           />
         </div>

@@ -1,0 +1,62 @@
+/* Override heat.js styles */
+div.heat-js {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 1.5rem !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* Year selector */
+div.heat-js select {
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  font-family: var(--font-sans) !important;
+}
+
+div.heat-js select:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+/* Guide labels */
+div.heat-js .guide-labels {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  color: hsl(var(--muted-foreground)) !important;
+  font-family: var(--font-mono) !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* Month and day labels */
+div.heat-js .month-name,
+div.heat-js .day-name {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  color: hsl(var(--muted-foreground)) !important;
+  font-family: var(--font-mono) !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* Title */
+div.heat-js .title {
+  font-family: var(--font-sans) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* Numbers */
+div.heat-js .day-number {
+  font-family: var(--font-mono) !important;
+  font-feature-settings: "tnum" !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* All other text elements */
+div.heat-js * {
+  font-family: var(--font-sans) !important;
+}

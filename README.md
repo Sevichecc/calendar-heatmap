@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Calendar Heatmap
+
+A beautiful and interactive calendar heatmap visualization tool built with Next.js and TypeScript. Import your time tracking data and visualize it in a GitHub-style heatmap.
+
+## Features
+
+- 📅 Interactive calendar heatmap visualization
+- 📊 Support for multiple data formats:
+  - JSON (Timeview format)
+  - CSV
+  - ICS (Calendar format)
+- 🎨 Customizable appearance:
+  - Multiple color themes
+  - Adjustable intensity ranges
+- 🔍 Advanced filtering:
+  - Text search across titles, notes, categories, and tags
+  - Duration-based filtering
+- 📤 Export capabilities:
+  - Export as PNG in various sizes
+  - Custom title and user ID in exports
+  - Live preview before export
+- 💻 Modern tech stack:
+  - Next.js 14 with App Router
+  - TypeScript
+  - Tailwind CSS
+  - Shadcn/ui components
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
+- Node.js 18+ or Bun 1.0+
+- npm or bun package manager
+
+### Installation
+
+1. Clone the repository:
+\`\`\`bash
+git clone https://github.com/yourusername/calendar-heatmap.git
+cd calendar-heatmap
+\`\`\`
+
+2. Install dependencies:
+\`\`\`bash
+# Using npm
+npm install
+
+# Using bun
+bun install
+\`\`\`
+
+3. Start the development server:
+\`\`\`bash
+# Using npm
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# Using bun
+bun run dev
+\`\`\`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Visit `http://localhost:3000` to see the application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage
 
-## Learn More
+1. Click the "Import Data" button to upload your time tracking data
+2. Supported file formats:
+   - JSON files from Timeview
+   - CSV files with date, duration, and title columns
+   - ICS calendar files
+3. Use the filters to search and filter your data
+4. Adjust the color ranges to customize the visualization
+5. Export your heatmap as an image using the export button
 
-To learn more about Next.js, take a look at the following resources:
+## Data Format Examples
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### JSON Format
+\`\`\`json
+[
+  {
+    "date": "2024-01-01",
+    "duration": 2.5,
+    "title": "Project Work",
+    "note": "Working on feature X",
+    "category": "Development",
+    "tags": ["coding", "feature"]
+  }
+]
+\`\`\`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### CSV Format
+\`\`\`csv
+date,duration,title,note,category,tags
+2024-01-01,2.5,"Project Work","Working on feature X","Development","coding;feature"
+\`\`\`
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+MIT License - feel free to use this project for your own purposes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

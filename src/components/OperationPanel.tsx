@@ -5,6 +5,8 @@ import { ColorRangeSettings } from "@/components/ColorRangeSettings"
 // import { ExportDialog } from "@/components/ExportDialog"
 import { Input } from "@/components/ui/input"
 import { Search, Timer } from "lucide-react"
+import { useCallback } from "react"
+import debounce from "lodash/debounce"
 
 interface OperationPanelProps {
   keyword: string;
@@ -28,6 +30,16 @@ export function OperationPanel({
   colorRanges,
   onColorRangesChange,
 }: OperationPanelProps) {
+  const debouncedKeywordChange = useCallback(
+    debounce((value: string) => onKeywordChange(value), 300),
+    [onKeywordChange]
+  )
+
+  const debouncedDurationChange = useCallback(
+    debounce((range: [number, number]) => onDurationRangeChange(range), 300),
+    [onDurationRangeChange]
+  )
+
   return (
     <div className="space-y-6">
       <div className="flex gap-4 items-end">
@@ -38,7 +50,13 @@ export function OperationPanel({
           </div>
           <Input
             value={keyword}
-            onChange={(e) => onKeywordChange(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value
+              // 立即更新UI
+              onKeywordChange(value)
+              // 防抖更新父组件
+              debouncedKeywordChange(value)
+            }}
             placeholder="Search..."
           />
         </div>
@@ -56,7 +74,11 @@ export function OperationPanel({
               value={durationRange[0]}
               onChange={(e) => {
                 const newValue = Math.min(Math.max(0, Number(e.target.value)), durationRange[1]);
-                onDurationRangeChange([newValue, durationRange[1]]);
+                const newRange: [number, number] = [newValue, durationRange[1]]
+                // 立即更新UI
+                onDurationRangeChange(newRange)
+                // 防抖更新父组件
+                debouncedDurationChange(newRange)
               }}
               className="w-20"
             />
@@ -68,7 +90,11 @@ export function OperationPanel({
               value={durationRange[1]}
               onChange={(e) => {
                 const newValue = Math.max(Math.min(24, Number(e.target.value)), durationRange[0]);
-                onDurationRangeChange([durationRange[0], newValue]);
+                const newRange: [number, number] = [durationRange[0], newValue]
+                // 立即更新UI
+                onDurationRangeChange(newRange)
+                // 防抖更新父组件
+                debouncedDurationChange(newRange)
               }}
               className="w-20"
             />

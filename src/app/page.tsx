@@ -22,25 +22,23 @@ export default function Home() {
     { minimum: 8, cssClassName: 'day-color-4' }
   ]);
 
-  // Filter Data
+  // Filter data based on keyword and duration range
   const filteredData = useMemo(() => {
     return rawData
-      .filter(item => {
-        const searchText = keyword.toLowerCase();
-        const matchesKeyword = keyword === '' || 
-          item.title.toLowerCase().includes(searchText) ||
-          item.note?.toLowerCase().includes(searchText) ||
-          item.category?.toLowerCase().includes(searchText) ||
-          item.tags?.some(tag => tag.toLowerCase().includes(searchText));
-        const matchesDuration = item.duration >= durationRange[0] && 
-          item.duration <= durationRange[1];
+      .filter(entry => {
+        const matchesKeyword = !keyword || [entry.title, entry.note, ...(entry.tags || []), entry.category]
+          .filter(Boolean)
+          .some(text => text?.toLowerCase().includes(keyword.toLowerCase()));
+
+        const matchesDuration = entry.duration >= durationRange[0] && entry.duration <= durationRange[1];
+
         return matchesKeyword && matchesDuration;
       })
-      .reduce((acc: Date[], item) => {
-        // 根据持续时间添加多个日期实例
-        const repeatTimes = Math.ceil(item.duration);
+      .reduce((acc: Date[], entry) => {
+        // Add multiple instances of the date based on duration
+        const repeatTimes = Math.ceil(entry.duration);
         for (let i = 0; i < repeatTimes; i++) {
-          acc.push(item.date);
+          acc.push(entry.date);
         }
         return acc;
       }, []);

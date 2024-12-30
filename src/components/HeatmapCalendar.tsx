@@ -54,7 +54,7 @@ export function HeatmapCalendar({ data, year, colorRanges }: HeatmapCalendarProp
           showNumbersInGuide: true
         },
         tooltip: {
-          delay: 500,
+          delay: 300,
           dayText: "{d}{o} {mmmm} {yyyy}"
         }
       } as unknown as BindingOptions);

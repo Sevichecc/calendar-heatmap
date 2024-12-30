@@ -80,7 +80,7 @@ export function OperationPanel({
         <div className="flex items-center gap-2">
           <ThemePicker currentTheme={theme} onSelectTheme={onThemeChange} />
           <ColorRangeSettings ranges={colorRanges} onRangesChange={onColorRangesChange} />
-          <ExportDialog elementId="heat-map" year={selectedYear} />
+          {/* <ExportDialog elementId="heat-map" year={selectedYear} /> */}
         </div>
       </div>
     </div>

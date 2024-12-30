@@ -1,3 +1,5 @@
+import Papa from 'papaparse';
+
 interface TimeEntry {
   date: Date;
   duration: number;
@@ -13,35 +15,258 @@ function normalizeDate(date: Date): Date {
   return normalized;
 }
 
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
+/**
+ * Comprehensive date parser that handles various date formats
+ */
+function parseDate(dateStr: string): Date | null {
+  if (!dateStr) return null;
   
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        // Handle escaped quotes
-        current += '"';
-        i++;
-      } else {
-        // Toggle quotes mode
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      // End of field
-      result.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
+  // Remove any leading/trailing whitespace
+  dateStr = dateStr.trim();
+  
+  // Try direct Date parsing first
+  let date = new Date(dateStr);
+  if (!isNaN(date.getTime())) {
+    return date;
   }
   
-  // Push the last field
-  result.push(current.trim());
-  return result;
+  // Common date format patterns
+  const patterns = [
+    // MM/DD/YY
+    {
+      regex: /^(\d{1,2})\/(\d{1,2})\/(\d{2})(?:\s|$)/,
+      handler: (match: RegExpMatchArray) => {
+        const [, month, day, year] = match;
+        const fullYear = parseInt(year) + (parseInt(year) < 50 ? 2000 : 1900);
+        return new Date(fullYear, parseInt(month) - 1, parseInt(day));
+      }
+    },
+    // YYYY/MM/DD
+    {
+      regex: /^(\d{4})\/(\d{1,2})\/(\d{1,2})(?:\s|$)/,
+      handler: (match: RegExpMatchArray) => {
+        const [, year, month, day] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      }
+    },
+    // DD-MM-YYYY
+    {
+      regex: /^(\d{1,2})-(\d{1,2})-(\d{4})(?:\s|$)/,
+      handler: (match: RegExpMatchArray) => {
+        const [, day, month, year] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      }
+    },
+    // YYYY-MM-DD
+    {
+      regex: /^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s|$)/,
+      handler: (match: RegExpMatchArray) => {
+        const [, year, month, day] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      }
+    },
+    // DD.MM.YYYY
+    {
+      regex: /^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s|$)/,
+      handler: (match: RegExpMatchArray) => {
+        const [, day, month, year] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      }
+    },
+    // Mon DD, YYYY
+    {
+      regex: /^([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})(?:\s|$)/,
+      handler: (match: RegExpMatchArray) => {
+        const [, month, day, year] = match;
+        const monthIndex = new Date(`${month} 1, 2000`).getMonth();
+        return new Date(parseInt(year), monthIndex, parseInt(day));
+      }
+    }
+  ];
+
+  // Try each pattern
+  for (const { regex, handler } of patterns) {
+    const match = dateStr.match(regex);
+    if (match) {
+      try {
+        date = handler(match);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+      } catch (e) {
+        console.warn(`Error parsing date with pattern ${regex}:`, e);
+      }
+    }
+  }
+
+  // Handle special date strings with time
+  const timePatterns = [
+    // MM/DD/YY HH:MM AM/PM
+    {
+      regex: /^(\d{1,2})\/(\d{1,2})\/(\d{2})\s+(\d{1,2}):(\d{2})\s*(AM|PM)?/i,
+      handler: (match: RegExpMatchArray) => {
+        const [, month, day, year, hours, minutes, ampm] = match;
+        const fullYear = parseInt(year) + (parseInt(year) < 50 ? 2000 : 1900);
+        let hour = parseInt(hours);
+        if (ampm) {
+          if (ampm.toUpperCase() === 'PM' && hour < 12) hour += 12;
+          if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
+        }
+        return new Date(fullYear, parseInt(month) - 1, parseInt(day), hour, parseInt(minutes));
+      }
+    },
+    // YYYY/MM/DD HH:MM
+    {
+      regex: /^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/,
+      handler: (match: RegExpMatchArray) => {
+        const [, year, month, day, hours, minutes] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 
+                       parseInt(hours), parseInt(minutes));
+      }
+    }
+  ];
+
+  // Try time patterns
+  for (const { regex, handler } of timePatterns) {
+    const match = dateStr.match(regex);
+    if (match) {
+      try {
+        date = handler(match);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+      } catch (e) {
+        console.warn(`Error parsing date with time pattern ${regex}:`, e);
+      }
+    }
+  }
+
+  // If all fails, return null
+  return null;
+}
+
+/**
+ * Parse duration string into hours
+ */
+function parseDuration(durationStr: string | number | undefined, row?: Record<string, any>): number {
+  if (!durationStr && !row) return 0;
+  
+  // If numeric duration is provided directly
+  if (typeof durationStr === 'number') {
+    return durationStr;
+  }
+
+  // Try to parse direct hour value
+  const directHours = parseFloat(durationStr as string);
+  if (!isNaN(directHours)) {
+    return directHours;
+  }
+
+  // Parse duration from Chinese format (X小时Y分钟)
+  const chinesePattern = /(\d+)小时\s*(?:(\d+)分钟?)?/;
+  const chineseMatch = durationStr?.match?.(chinesePattern) || 
+                      row?.Title?.match?.(chinesePattern);
+  
+  if (chineseMatch) {
+    const hours = parseInt(chineseMatch[1]) || 0;
+    const minutes = parseInt(chineseMatch[2]) || 0;
+    return hours + minutes / 60;
+  }
+
+  // Calculate from start and end dates if available
+  if (row?.['Start date'] && row?.['End date']) {
+    const startDate = parseDate(row['Start date']);
+    const endDate = parseDate(row['End date']);
+    
+    if (startDate && endDate) {
+      return (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+    }
+  }
+
+  return 0;
+}
+
+export function parseTimeviewCsv(csvString: string): TimeEntry[] {
+  interface CsvRow {
+    'Start date': string;
+    'End date'?: string;
+    Title?: string;
+    Notes?: string;
+    Duration?: string | number;
+  }
+
+  // Common instruction messages to filter out
+  const instructionMessages = [
+    '如需隐藏节假日',
+    'To hide observances',
+    'This is a half-day holiday',
+    '这是半天假',
+    '请前往 Google 日历的"设置"',
+    'Go to Google Calendar settings',
+    '中国节假日',
+    'Chinese holidays'
+  ];
+
+  const results = Papa.parse<CsvRow>(csvString, {
+    header: true,
+    skipEmptyLines: 'greedy',
+    dynamicTyping: true,
+    transform: (value: string) => (value || '').trim(),
+    transformHeader: (header: string) => header.trim()
+  });
+
+  return (results.data || [])
+    .filter((row: CsvRow) => {
+      // Skip rows that don't have required fields
+      if (!row['Start date']) return false;
+
+      // Skip rows that contain instruction messages in any field
+      const rowValues = Object.values(row).map(val => String(val || '').toLowerCase());
+      return !instructionMessages.some(msg => 
+        rowValues.some(val => val.includes(msg.toLowerCase()))
+      );
+    })
+    .map((row: CsvRow) => {
+      try {
+        // Parse start date
+        const startDate = parseDate(row['Start date']);
+        if (!startDate) return null;
+
+        // Extract duration
+        const duration = parseDuration(row.Duration, row);
+
+        // Extract tags and clean title
+        const tags: string[] = [];
+        let title = row.Title || '';
+        
+        // Extract tags from [tag] format
+        title = title.replace(/\[(.*?)\]/g, (_: string, tag: string) => {
+          if (tag.startsWith('#')) {
+            tags.push(tag.substring(1));
+          }
+          return '';
+        });
+
+        // Clean up title
+        title = title
+          .replace(/\(.*?\)/g, '') // Remove parenthetical content
+          .replace(/\s+/g, ' ')    // Normalize whitespace
+          .trim();
+
+        return {
+          date: normalizeDate(startDate),
+          duration: Math.max(duration, 0.1), // Minimum duration of 0.1 hours
+          title: title || 'Untitled Event', // Provide default title
+          note: row.Notes || '',
+          category: tags[0] || '',
+          tags
+        } as TimeEntry;
+      } catch (error) {
+        // Silently skip problematic rows
+        return null;
+      }
+    })
+    .filter((entry: TimeEntry | null): entry is TimeEntry => entry !== null);
 }
 
 export function parseTimeviewJson(jsonString: string): TimeEntry[] {
@@ -128,74 +353,6 @@ export function parseTimeviewJson(jsonString: string): TimeEntry[] {
     console.error('Error parsing JSON:', error);
     return [];
   }
-}
-
-export function parseTimeviewCsv(csvString: string): TimeEntry[] {
-  // Handle different line endings by normalizing to \n
-  const lines = csvString.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  
-  // Skip empty lines and header/instruction lines
-  const entries = lines
-    .filter(line => {
-      const trimmed = line.trim();
-      if (!trimmed) return false;
-      
-      // Skip instruction lines
-      if (trimmed.startsWith('Start date') ||
-          trimmed.startsWith('如需隐藏节假日') ||
-          trimmed.startsWith('To hide observances') ||
-          trimmed.includes('这是半天假') ||
-          trimmed.includes('This is a half-day holiday')) {
-        return false;
-      }
-      
-      return true;
-    })
-    .map(line => {
-      try {
-        const [dateStr, durationStr, title, note = '', category = '', tagsStr = ''] = 
-          parseCSVLine(line);
-        
-        // Try different date formats
-        let date: Date | null = null;
-        
-        // Try MM/DD/YY format first
-        const mmddyyMatch = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2})/);
-        if (mmddyyMatch) {
-          const [, month, day, year] = mmddyyMatch;
-          date = new Date(2000 + parseInt(year), parseInt(month) - 1, parseInt(day));
-        }
-        
-        // If that fails, try standard ISO format
-        if (!date || isNaN(date.getTime())) {
-          date = new Date(dateStr);
-        }
-        
-        if (!date || isNaN(date.getTime())) {
-          throw new Error(`Invalid date: ${dateStr}`);
-        }
-
-        const duration = parseFloat(durationStr);
-        if (isNaN(duration)) {
-          throw new Error(`Invalid duration: ${durationStr}`);
-        }
-        
-        return {
-          date: normalizeDate(date),
-          duration: duration || 1,
-          title: title || 'Untitled',
-          note,
-          category,
-          tags: tagsStr ? tagsStr.split(';').map((t: string) => t.trim()) : []
-        } as TimeEntry;
-      } catch (error) {
-        console.error('Error parsing CSV line:', error);
-        return null;
-      }
-    })
-    .filter((entry): entry is TimeEntry => entry !== null);
-
-  return entries;
 }
 
 export function parseICS(icsString: string): TimeEntry[] {

@@ -38,7 +38,7 @@ export function HeatmapCalendar({ data, year, colorRanges }: HeatmapCalendarProp
             showDayNames: true,
             showMonthNames: true,
             showDayNumbers: false,
-            showMonthDayGaps: true,
+            showMonthDayGaps: false,
             placeMonthNamesOnTheBottom: false
           }
         },

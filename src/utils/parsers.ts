@@ -9,6 +9,22 @@ interface TimeEntry {
   tags?: string[];
 }
 
+interface DurationRow {
+  'Start date'?: string;
+  'End date'?: string;
+  Duration?: string | number;
+  Title?: string;
+  [key: string]: string | number | undefined;
+}
+
+interface CsvRow extends DurationRow {
+  'Start date': string;
+  'End date'?: string;
+  Title?: string;
+  Notes?: string;
+  Duration?: string | number;
+}
+
 function normalizeDate(date: Date): Date {
   const normalized = new Date(date);
   normalized.setHours(0, 0, 0, 0);
@@ -148,7 +164,7 @@ function parseDate(dateStr: string): Date | null {
 /**
  * Parse duration string into hours
  */
-function parseDuration(durationStr: string | number | undefined, row?: Record<string, any>): number {
+function parseDuration(durationStr: string | number | undefined, row?: DurationRow): number {
   if (!durationStr && !row) return 0;
   
   // If numeric duration is provided directly
@@ -187,14 +203,6 @@ function parseDuration(durationStr: string | number | undefined, row?: Record<st
 }
 
 export function parseTimeviewCsv(csvString: string): TimeEntry[] {
-  interface CsvRow {
-    'Start date': string;
-    'End date'?: string;
-    Title?: string;
-    Notes?: string;
-    Duration?: string | number;
-  }
-
   // Common instruction messages to filter out
   const instructionMessages = [
     '如需隐藏节假日',
@@ -263,6 +271,7 @@ export function parseTimeviewCsv(csvString: string): TimeEntry[] {
         } as TimeEntry;
       } catch (error) {
         // Silently skip problematic rows
+        console.log('Error parsing row:', error, row);
         return null;
       }
     })

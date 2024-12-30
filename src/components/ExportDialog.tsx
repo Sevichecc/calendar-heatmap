@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { exportComponentAsPNG } from "react-component-export-image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,13 +67,18 @@ export function ExportDialog({ elementId, year }: ExportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [size, setSize] = useState<SizeKey>('medium');
   const exportRef = useRef<HTMLDivElement>(null);
+  const [previewHtml, setPreviewHtml] = useState('');
+
+  useEffect(() => {
+    setPreviewHtml(document.getElementById(elementId)?.outerHTML || '');
+  }, [elementId]);
 
   const handleExport = async () => {
     if (!exportRef.current) return;
     
     setIsExporting(true);
     try {
-      await exportComponentAsPNG(exportRef as any, {
+      await exportComponentAsPNG(exportRef as React.RefObject<HTMLDivElement>, {
         fileName: title.toLowerCase().replace(/\s+/g, "-"),
         html2CanvasOptions: {
           backgroundColor: "white",
@@ -146,9 +151,7 @@ export function ExportDialog({ elementId, year }: ExportDialogProps) {
               <Label>Preview</Label>
               <div className="w-full border rounded-lg overflow-auto bg-background">
                 <ExportComponent ref={exportRef} title={title} userId={userId}>
-                  <div dangerouslySetInnerHTML={{ 
-                    __html: document.getElementById(elementId)?.outerHTML || '' 
-                  }} />
+                  <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
                 </ExportComponent>
               </div>
             </div>

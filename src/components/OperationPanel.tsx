@@ -2,7 +2,7 @@
 
 import { ThemePicker } from "@/components/ThemePicker"
 import { ColorRangeSettings } from "@/components/ColorRangeSettings"
-import { ExportDialog } from "@/components/ExportDialog"
+// import { ExportDialog } from "@/components/ExportDialog"
 import { Input } from "@/components/ui/input"
 import { Search, Timer } from "lucide-react"
 
@@ -15,7 +15,7 @@ interface OperationPanelProps {
   onThemeChange: (theme: string) => void;
   colorRanges: Array<{ minimum: number; cssClassName: string }>;
   onColorRangesChange: (ranges: Array<{ minimum: number; cssClassName: string }>) => void;
-  selectedYear: number;
+  selectedYear?: number;
 }
 
 export function OperationPanel({
@@ -27,11 +27,9 @@ export function OperationPanel({
   onThemeChange,
   colorRanges,
   onColorRangesChange,
-  selectedYear,
 }: OperationPanelProps) {
   return (
     <div className="space-y-6">
-      {/* 筛选控件 */}
       <div className="flex gap-4 items-end">
         <div className="w-64 space-y-1.5">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -80,7 +78,7 @@ export function OperationPanel({
         <div className="flex items-center gap-2">
           <ThemePicker currentTheme={theme} onSelectTheme={onThemeChange} />
           <ColorRangeSettings ranges={colorRanges} onRangesChange={onColorRangesChange} />
-          {/* <ExportDialog elementId="heat-map" year={selectedYear} /> */}
+          {/* <ExportDialog elementId="heatmap-calendar" year={selectedYear} /> */}
         </div>
       </div>
     </div>

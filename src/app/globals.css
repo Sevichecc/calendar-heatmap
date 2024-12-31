@@ -88,12 +88,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
-/* 添加新的悬停效果样式 */
-.heatmap-cell-hover {
-  @apply transition-all duration-100;
-}
-
-.heatmap-cell-hover:hover {
-  @apply ring-2 ring-offset-2 ring-gray-400;
-}

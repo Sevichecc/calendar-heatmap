@@ -3,10 +3,6 @@
 import { useState, useMemo } from "react";
 import { HeatmapCalendar } from "@/components/HeatmapCalendar"
 import { parseTimeviewJson, parseTimeviewCsv, parseICS } from "@/utils/parsers";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
 import { OperationPanel } from "@/components/OperationPanel";
 
 export default function Home() {
@@ -80,27 +76,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-background">
-      <div className="max-w-[1000px] mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight font-mono">Calendar Heatmap</h1>
-          <Input
-            type="file"
-            onChange={handleFileUpload}
-            accept=".json,.csv,.ics"
-            multiple
-            id="file-upload"
-            className="hidden"
-          />
-          <Label 
-            htmlFor="file-upload"
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer transition-colors"
-          >
-            <Upload className="h-4 w-4" />
-            <span>Import Data</span>
-          </Label>
-        </div>
-
+    <main className="min-h-screen bg-background">
+      <div className="flex">
         <OperationPanel
           keyword={keyword}
           onKeywordChange={setKeyword}
@@ -111,14 +88,19 @@ export default function Home() {
           colorRanges={colorRanges}
           onColorRangesChange={setColorRanges}
           selectedYear={selectedYear}
+          onFileUpload={handleFileUpload}
         />
-        
-        <div className="rounded-lg border bg-card text-card-foreground shadow">
-          <HeatmapCalendar 
-            data={filteredData} 
-            year={selectedYear} 
-            colorRanges={colorRanges}
-          />
+
+        <div className="flex-1 p-4 md:p-8">
+          <div className="max-w-[1000px] mx-auto space-y-6">
+            <div className="rounded-lg border bg-card text-card-foreground shadow">
+              <HeatmapCalendar 
+                data={filteredData} 
+                year={selectedYear} 
+                colorRanges={colorRanges}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </main>

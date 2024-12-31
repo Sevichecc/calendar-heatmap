@@ -33,25 +33,28 @@ export function HeatmapCalendar({ data, year, colorRanges }: HeatmapCalendarProp
       window.$heat.render(containerRef.current, {
         _currentView: "map",
         year: year,
+        showOnlyDataForYearsAvailable: true,
         views: {
           map: {
             showDayNames: true,
             showMonthNames: true,
             showDayNumbers: false,
             showMonthDayGaps: false,
-            placeMonthNamesOnTheBottom: false
+            placeMonthNamesOnTheBottom: false,
           }
         },
         colorRanges,
         title: {
           showText: true,
           showYearSelector: true,
-          showCurrentYearButton: true
+          showCurrentYearButton: true,
+          extraSelectionYears: 3,
+          text: "Heatmap"
         },
         guide: {
           enabled: true,
           showLessAndMoreLabels: true,
-          showNumbersInGuide: true
+          showNumbersInGuide: true,
         },
         tooltip: {
           delay: 300,

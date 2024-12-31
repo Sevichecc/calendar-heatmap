@@ -1,176 +1,173 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { exportComponentAsPNG } from "react-component-export-image";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react";
+import html2canvas from "html2canvas";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
+import "@/app/globals.css";
+import "@/styles/heat-override.css";
 interface ExportDialogProps {
   elementId: string;
   year: number;
 }
 
-type SizeKey = 'small' | 'medium' | 'large' | 'original';
-
-type SizeConfig = {
-  scale: number;
-};
-
-const SIZES: Record<SizeKey, SizeConfig> = {
-  'small': { scale: 1 },
-  'medium': { scale: 1.5 },
-  'large': { scale: 2 },
-  'original': { scale: 2 }
-};
-
-const ExportComponent = React.forwardRef<HTMLDivElement, { title: string; userId?: string; children: React.ReactNode }>(
-  ({ title, userId, children }, ref) => (
-    <div ref={ref} className="p-8 bg-white">
-      <div className="mb-6 text-[1.75rem] font-semibold font-mono text-[#1a1a1a]">
-        {title}
-      </div>
-      {userId && (
-        <div className="mb-4 text-lg text-gray-600 font-mono">
-          @{userId}
-        </div>
-      )}
-      <div className="export-content">
-        {children}
-      </div>
-    </div>
-  )
-);
-ExportComponent.displayName = 'ExportComponent';
-
 export function ExportDialog({ elementId, year }: ExportDialogProps) {
-  const [title, setTitle] = useState(`Calendar Heatmap ${year}`);
   const [userId, setUserId] = useState("");
-  const [isExporting, setIsExporting] = useState(false);
+  const [width, setWidth] = useState(1200);
+  const [height, setHeight] = useState(600);
   const [isOpen, setIsOpen] = useState(false);
-  const [size, setSize] = useState<SizeKey>('medium');
-  const exportRef = useRef<HTMLDivElement>(null);
-  const [previewHtml, setPreviewHtml] = useState('');
-
-  useEffect(() => {
-    setPreviewHtml(document.getElementById(elementId)?.outerHTML || '');
-  }, [elementId]);
 
   const handleExport = async () => {
-    if (!exportRef.current) return;
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    // 创建一个临时容器
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.width = `${width}px`;
+    container.style.backgroundColor = '#ffffff';
+    container.style.padding = '20px';
+    container.style.borderRadius = '8px';
     
-    setIsExporting(true);
+    // 克隆整个元素
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // 添加基础样式
+    const style = document.createElement('style');
+    style.textContent = `
+      .title-bar {
+        display: none;      
+      }
+
+      #heat-map {
+        background-color: transparent;
+        border: none;
+      }
+
+      .guide {
+        display: none !important;
+      }
+
+      div.days {
+        background-color: transparent !important;
+      }
+
+      div.map {
+        background-color: transparent !important;
+      }
+
+    `;
+    container.appendChild(clone);
+    container.appendChild(style);    
+    // 如果有用户 ID，添加到底部
+    if (userId) {
+      const userIdElement = document.createElement('div');
+      userIdElement.style.position = 'absolute';
+      userIdElement.style.bottom = '15px';
+      userIdElement.style.right = '20px';
+      userIdElement.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+      userIdElement.style.fontSize = '14px';
+      userIdElement.style.color = '#020617';
+      userIdElement.textContent = `@${userId}`;
+      container.appendChild(userIdElement);
+    }
+
+    document.body.appendChild(container);
+
     try {
-      await exportComponentAsPNG(exportRef as React.RefObject<HTMLDivElement>, {
-        fileName: title.toLowerCase().replace(/\s+/g, "-"),
-        html2CanvasOptions: {
-          backgroundColor: "white",
-          scale: SIZES[size].scale,
-          useCORS: true,
-          logging: true,
-          allowTaint: true,
-          foreignObjectRendering: true
-        }
+      // 等待样式应用
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        backgroundColor: 'transparent',
+        logging: false,
+        allowTaint: true,
+        useCORS: true,
       });
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Export failed:", error);
+
+      // 创建下载链接
+      const link = document.createElement('a');
+      link.download = `heatmap-${year}${userId ? '-' + userId : ''}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
     } finally {
-      setIsExporting(false);
+      document.body.removeChild(container);
     }
   };
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="icon" className="h-9 w-9">
-            <Download className="h-4 w-4" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Export Heatmap</DialogTitle>
-            <DialogDescription>
-              Customize and export your heatmap as an image
-            </DialogDescription>
-          </DialogHeader>
-
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Download className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Export Heatmap</DialogTitle>
+          <DialogDescription>
+            Configure the export settings and download your heatmap as a PNG image.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="grid gap-6">
           <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="userId">User ID (optional)</Label>
-              <Input
-                id="userId"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Size</Label>
-              <Select value={size} onValueChange={(value: SizeKey) => setSize(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="large">Large</SelectItem>
-                  <SelectItem value="original">Original Size</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Preview</Label>
-              <div className="w-full border rounded-lg overflow-auto bg-background">
-                <ExportComponent ref={exportRef} title={title} userId={userId}>
-                  <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
-                </ExportComponent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>User ID</Label>
+                <Input
+                  placeholder="@username"
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value.replace(/^@/, ""))}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Size</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    value={width}
+                    onChange={(e) => setWidth(Number(e.target.value))}
+                    min={800}
+                    max={2400}
+                    step={100}
+                    className="w-24"
+                  />
+                  <span className="text-muted-foreground">×</span>
+                  <Input
+                    type="number"
+                    value={height}
+                    onChange={(e) => setHeight(Number(e.target.value))}
+                    min={400}
+                    max={1200}
+                    step={100}
+                    className="w-24"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button onClick={handleExport} disabled={isExporting}>
-              {isExporting ? (
-                <>
-                  <span className="mr-2">Exporting...</span>
-                  <span className="animate-spin">⏳</span>
-                </>
-              ) : (
-                'Export'
-              )}
+          <div className="flex justify-end">
+            <Button onClick={handleExport}>
+              <Download className="mr-2 h-4 w-4" />
+              Download PNG
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 } 

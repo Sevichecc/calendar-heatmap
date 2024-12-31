@@ -35,28 +35,28 @@ A beautiful and interactive calendar heatmap visualization tool built with Next.
 ### Installation
 
 1. Clone the repository:
-\`\`\`bash
+```bash
 git clone https://github.com/yourusername/calendar-heatmap.git
 cd calendar-heatmap
-\`\`\`
+```
 
 2. Install dependencies:
-\`\`\`bash
+```bash
 # Using npm
 npm install
 
 # Using bun
 bun install
-\`\`\`
+```
 
 3. Start the development server:
-\`\`\`bash
+```bash
 # Using npm
 npm run dev
 
 # Using bun
 bun run dev
-\`\`\`
+```
 
 Visit `http://localhost:3000` to see the application.
 
@@ -74,7 +74,7 @@ Visit `http://localhost:3000` to see the application.
 ## Data Format Examples
 
 ### JSON Format
-\`\`\`json
+```json
 [
   {
     "date": "2024-01-01",
@@ -85,13 +85,13 @@ Visit `http://localhost:3000` to see the application.
     "tags": ["coding", "feature"]
   }
 ]
-\`\`\`
+```
 
 ### CSV Format
-\`\`\`csv
+```csv
 date,duration,title,note,category,tags
 2024-01-01,2.5,"Project Work","Working on feature X","Development","coding;feature"
-\`\`\`
+```
 
 ## License
 

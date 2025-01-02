@@ -45,11 +45,10 @@ export function HeatmapCalendar({ data, year, colorRanges }: HeatmapCalendarProp
         },
         colorRanges,
         title: {
-          showText: true,
+          showText: false,
           showYearSelector: true,
           showCurrentYearButton: true,
           extraSelectionYears: 3,
-          text: "Heatmap"
         },
         guide: {
           enabled: true,

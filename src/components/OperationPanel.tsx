@@ -9,7 +9,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
-import { ExportDialog } from "@/components/ExportDialog"
 
 interface OperationPanelProps {
   keyword: string;
@@ -55,8 +54,16 @@ const SidebarContent = ({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold tracking-tight font-mono">Calendar Heatmap</h1>
-        <div className="flex items-center gap-2">
+        <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+          Calendar Heatmap
+        </h1>
+      </div>
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <Upload className="h-4 w-4" />
+          <span>Import Data</span>
+        </div>
+        <div>
           <Input
             type="file"
             onChange={onFileUpload}
@@ -67,19 +74,16 @@ const SidebarContent = ({
           />
           <Label 
             htmlFor="file-upload"
-            className="flex items-center gap-2 px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer transition-colors text-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 w-full border rounded-md hover:bg-accent cursor-pointer transition-colors text-sm"
           >
-            <Upload className="h-4 w-4" />
-            <span>Import</span>
+            Choose files (.json, .csv, .ics)
           </Label>
-          <ExportDialog elementId="heat-map" year={selectedYear || 2024} />
         </div>
       </div>
-
       <div className="space-y-1.5">
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Search className="h-4 w-4" />
-          <span>Filter</span>
+          <span>Filter Data</span>
         </div>
         <Input
           value={keyword}
@@ -130,7 +134,6 @@ const SidebarContent = ({
 
       <div className="space-y-4">
         <ThemePicker currentTheme={theme} onSelectTheme={onThemeChange} />
-        
         <div className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -187,32 +190,9 @@ export function OperationPanel({
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden md:block w-80 border-r shrink-0 overflow-y-auto">
-        <div className="p-4">
-          <SidebarContent
-            keyword={keyword}
-            onKeywordChange={onKeywordChange}
-            durationRange={durationRange}
-            onDurationRangeChange={onDurationRangeChange}
-            theme={theme}
-            onThemeChange={onThemeChange}
-            colorRanges={colorRanges}
-            onColorRangesChange={onColorRangesChange}
-            selectedYear={selectedYear}
-            onFileUpload={onFileUpload}
-          />
-        </div>
-      </div>
-
-      {/* Mobile drawer */}
-      <Sheet>
-        <SheetTrigger asChild className="md:hidden">
-          <Button variant="ghost" size="icon" className="fixed left-4 top-4 z-50">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-80 p-0">
-          <div className="p-4">
+      <div className="hidden md:block w-80 border-r shrink-0 h-screen">
+        <div className="h-full overflow-y-auto">
+          <div className="p-4 space-y-6">
             <SidebarContent
               keyword={keyword}
               onKeywordChange={onKeywordChange}
@@ -225,6 +205,33 @@ export function OperationPanel({
               selectedYear={selectedYear}
               onFileUpload={onFileUpload}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      <Sheet>
+        <SheetTrigger asChild className="md:hidden">
+          <Button variant="ghost" size="icon" className="fixed left-4 top-4 z-50">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-80 p-0">
+          <div className="h-full overflow-y-auto">
+            <div className="p-4 space-y-6">
+              <SidebarContent
+                keyword={keyword}
+                onKeywordChange={onKeywordChange}
+                durationRange={durationRange}
+                onDurationRangeChange={onDurationRangeChange}
+                theme={theme}
+                onThemeChange={onThemeChange}
+                colorRanges={colorRanges}
+                onColorRangesChange={onColorRangesChange}
+                selectedYear={selectedYear}
+                onFileUpload={onFileUpload}
+              />
+            </div>
           </div>
         </SheetContent>
       </Sheet>

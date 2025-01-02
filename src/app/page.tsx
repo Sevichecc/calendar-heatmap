@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { HeatmapCalendar } from "@/components/HeatmapCalendar"
 import { parseTimeviewJson, parseTimeviewCsv, parseICS } from "@/utils/parsers";
 import { OperationPanel } from "@/components/OperationPanel";
+import { ExportDialog } from "@/components/ExportDialog";
+import Fuse from 'fuse.js';
 
 export default function Home() {
   const [theme, setTheme] = useState('light/gamboge');
@@ -18,20 +20,39 @@ export default function Home() {
     { minimum: 8, cssClassName: 'day-color-4' }
   ]);
 
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `/heat.js/themes/light/gamboge.css`;
+    document.head.appendChild(link);
+    document.documentElement.setAttribute('data-theme', 'light/gamboge');
+  }, []);
+
   // Filter data based on keyword and duration range
   const filteredData = useMemo(() => {
-    return rawData
-      .filter(entry => {
-        const matchesKeyword = !keyword || [entry.title, entry.note, ...(entry.tags || []), entry.category]
-          .filter(Boolean)
-          .some(text => text?.toLowerCase().includes(keyword.toLowerCase()));
+    if (!keyword) {
+      return rawData
+        .filter(entry => entry.duration >= durationRange[0] && entry.duration <= durationRange[1])
+        .reduce((acc: Date[], entry) => {
+          const repeatTimes = Math.ceil(entry.duration);
+          for (let i = 0; i < repeatTimes; i++) {
+            acc.push(entry.date);
+          }
+          return acc;
+        }, []);
+    }
 
-        const matchesDuration = entry.duration >= durationRange[0] && entry.duration <= durationRange[1];
+    const fuse = new Fuse(rawData, {
+      keys: ['title', 'note', 'category', 'tags'],
+      threshold: 0.4, // 0.0 = 精确匹配, 1.0 = 匹配所有
+      includeScore: true,
+      useExtendedSearch: true,
+    });
 
-        return matchesKeyword && matchesDuration;
-      })
+    return fuse.search(keyword)
+      .map(result => result.item)
+      .filter(entry => entry.duration >= durationRange[0] && entry.duration <= durationRange[1])
       .reduce((acc: Date[], entry) => {
-        // Add multiple instances of the date based on duration
         const repeatTimes = Math.ceil(entry.duration);
         for (let i = 0; i < repeatTimes; i++) {
           acc.push(entry.date);
@@ -75,6 +96,27 @@ export default function Home() {
     setRawData(allData);
   };
 
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+    
+    // If the theme is not a custom theme, load the theme from the theme picker
+    if (!newTheme.startsWith('custom/')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `/heat.js/themes/${newTheme}.css`;
+      
+      // Remove old theme
+      const oldLink = document.querySelector(`link[href*="/heat.js/themes/"]`);
+      if (oldLink) {
+        oldLink.remove();
+      }
+      
+      document.head.appendChild(link);
+    }
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <div className="flex">
@@ -84,7 +126,7 @@ export default function Home() {
           durationRange={durationRange}
           onDurationRangeChange={setDurationRange}
           theme={theme}
-          onThemeChange={setTheme}
+          onThemeChange={handleThemeChange}
           colorRanges={colorRanges}
           onColorRangesChange={setColorRanges}
           selectedYear={selectedYear}
@@ -99,6 +141,9 @@ export default function Home() {
                 year={selectedYear} 
                 colorRanges={colorRanges}
               />
+            </div>
+            <div className="flex justify-end">
+              <ExportDialog elementId="heat-map" year={selectedYear || 2024} />
             </div>
           </div>
         </div>

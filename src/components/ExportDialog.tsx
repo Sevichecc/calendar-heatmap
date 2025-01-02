@@ -87,10 +87,29 @@ export function ExportDialog({ elementId, year }: ExportDialogProps) {
     
     const clone = element.cloneNode(true) as HTMLElement;
     
-    const style = document.createElement('style');
-    style.textContent = getExportStyles(withBackground);
+    const themeStyle = document.createElement('style');
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    if (currentTheme?.startsWith('custom/')) {
+      const customStyle = document.getElementById(`theme-${currentTheme}`);
+      if (customStyle) {
+        themeStyle.textContent = customStyle.textContent;
+      }
+    } else {
+      const themeLink = document.querySelector(`link[href*="/heat.js/themes/"]`);
+      if (themeLink) {
+        const response = await fetch(themeLink.getAttribute('href') || '');
+        const css = await response.text();
+        themeStyle.textContent = css;
+      }
+    }
+    
+    container.appendChild(themeStyle);
+    
+    const exportStyle = document.createElement('style');
+    exportStyle.textContent = getExportStyles(withBackground);
+    container.appendChild(exportStyle);
+    
     container.appendChild(clone);
-    container.appendChild(style);    
 
     if (showUserId && userId) {
       const userIdElement = document.createElement('div');

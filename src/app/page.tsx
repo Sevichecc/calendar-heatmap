@@ -129,7 +129,6 @@ export default function Home() {
           onThemeChange={handleThemeChange}
           colorRanges={colorRanges}
           onColorRangesChange={setColorRanges}
-          selectedYear={selectedYear}
           onFileUpload={handleFileUpload}
         />
 

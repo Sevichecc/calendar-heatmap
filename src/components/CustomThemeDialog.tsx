@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings2, Upload, Download, Palette, Brush, Code } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Drawer, DrawerContent, DrawerTrigger, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger, DrawerHeader, DrawerTitle} from "@/components/ui/drawer";
 import { useMediaQuery } from "../hooks/use-media-query"
 
 interface CustomThemeDialogProps {

@@ -19,7 +19,6 @@ interface OperationPanelProps {
   onThemeChange: (theme: string) => void;
   colorRanges: Array<{ minimum: number; cssClassName: string }>;
   onColorRangesChange: (ranges: Array<{ minimum: number; cssClassName: string }>) => void;
-  selectedYear?: number;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -33,7 +32,6 @@ const SidebarContent = ({
   colorRanges,
   onColorRangesChange,
   onFileUpload,
-  selectedYear,
 }: OperationPanelProps) => {
   const debouncedKeywordChange = useCallback(
     debounce((value: string) => onKeywordChange(value), 300),
@@ -184,7 +182,6 @@ export function OperationPanel({
   onThemeChange,
   colorRanges,
   onColorRangesChange,
-  selectedYear,
   onFileUpload,
 }: OperationPanelProps) {
   return (
@@ -202,7 +199,6 @@ export function OperationPanel({
               onThemeChange={onThemeChange}
               colorRanges={colorRanges}
               onColorRangesChange={onColorRangesChange}
-              selectedYear={selectedYear}
               onFileUpload={onFileUpload}
             />
           </div>
@@ -228,7 +224,6 @@ export function OperationPanel({
                 onThemeChange={onThemeChange}
                 colorRanges={colorRanges}
                 onColorRangesChange={onColorRangesChange}
-                selectedYear={selectedYear}
                 onFileUpload={onFileUpload}
               />
             </div>

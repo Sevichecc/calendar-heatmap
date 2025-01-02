@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Divide, Download, Image as ImageIcon, FileImage } from "lucide-react";
+import { Download, Image as ImageIcon, FileImage } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 import "@/app/globals.css";
 import "@/styles/heat-override.css";
@@ -38,7 +37,7 @@ const getExportStyles = (withBackground: boolean) => `
     display: none;      
   }
 
-  #heat-map {
+  .heat-js {
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -49,35 +48,19 @@ const getExportStyles = (withBackground: boolean) => `
     display: none !important;
   }
 
-  div.days {
+  .days {
     ${!withBackground ? 'background-color: transparent !important;' : ''}
   }
 
-  div.map {
+  .map {
     ${!withBackground ? 'background-color: transparent !important;' : ''}
     padding: 20px !important;
   }
 
-  div.heat-js {
-    padding: 20px !important;
-    margin: 0 !important;
-    ${!withBackground ? 'background: transparent !important;' : ''}
-  }
-
-  div.month-name {
+  .month-name {
     padding: 4px !important;
     min-width: 30px !important;
     color: #64748b !important;
-  }
-
-  .export-userid {
-    position: absolute !important;
-    bottom: 15px !important;
-    right: 20px !important;
-    font-family: system-ui, -apple-system, sans-serif !important;
-    font-size: 12px !important;
-    color: #64748b !important;
-    font-style: italic !important;
   }
 `;
 

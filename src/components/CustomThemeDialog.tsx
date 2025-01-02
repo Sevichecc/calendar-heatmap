@@ -442,7 +442,7 @@ export function CustomThemeDialog({ onSave }: CustomThemeDialogProps) {
 
   if (isMobile) {
     return (
-      <Drawer modal={false} open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerTrigger asChild>
           <Button variant="ghost" size="icon">
             <Settings2 className="h-4 w-4" />
@@ -462,7 +462,7 @@ export function CustomThemeDialog({ onSave }: CustomThemeDialogProps) {
   }
 
   return (
-    <Dialog modal={false} open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Settings2 className="h-4 w-4" />
@@ -470,7 +470,7 @@ export function CustomThemeDialog({ onSave }: CustomThemeDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] p-0">
         <DialogHeader>
-          <DialogTitle>Custom Theme Settings</DialogTitle>
+          <DialogTitle className="hidden">Custom Theme Settings</DialogTitle>
         </DialogHeader>
         <div className="flex gap-6">
           <div className="w-[200px] border-r shrink-0 flex flex-col">

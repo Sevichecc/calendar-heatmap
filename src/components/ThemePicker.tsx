@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -121,7 +122,6 @@ export function ThemePicker({ currentTheme, onSelectTheme }: ThemePickerProps) {
   const handleSaveCustomTheme = (theme: CustomTheme) => {
     const themeValue = `custom/${theme.name.toLowerCase().replace(/\s+/g, '-')}`;
     
-    // 创建完整的 CSS 变量
     const cssVars = `
       [data-theme="${themeValue}"] {
         /* Colors */
@@ -175,7 +175,6 @@ export function ThemePicker({ currentTheme, onSelectTheme }: ThemePickerProps) {
       }
     `;
 
-    // 添加样式到 document
     const styleId = `theme-${themeValue}`;
     let styleEl = document.getElementById(styleId);
     if (!styleEl) {
@@ -185,7 +184,6 @@ export function ThemePicker({ currentTheme, onSelectTheme }: ThemePickerProps) {
     }
     styleEl.textContent = cssVars;
 
-    // 保存主题
     setCustomThemes(prev => [...prev, {
       name: theme.name,
       value: themeValue,
@@ -193,7 +191,6 @@ export function ThemePicker({ currentTheme, onSelectTheme }: ThemePickerProps) {
       colors: theme.colors
     }]);
     
-    // 应用新主题
     onSelectTheme(themeValue);
   };
 

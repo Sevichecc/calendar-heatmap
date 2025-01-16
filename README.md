@@ -93,10 +93,16 @@ date,duration,title,note,category,tags
 2024-01-01,2.5,"Project Work","Working on feature X","Development","coding;feature"
 ```
 
-## License
+## Data Sources
+- **macOS Calendar**: Export your calendar as `.ics` file via `File > Export`
+- **[TimeView](https://apps.apple.com/us/app/timeview-calendar-statistics/id1439197028)**: Export data as JSON or CSV via button below calendar.
 
 MIT License - feel free to use this project for your own purposes.
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT @Sevi.C, thanks to [塔塔](https://mantyke.icu/), without whom this App would not have been possible.
